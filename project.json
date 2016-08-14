@@ -1,0 +1,36 @@
+{
+  "${project_type}": {
+    "src": {
+      "readme": "# 该目录存放${project_type}产品源码",
+      "common": {
+        "pageviews": {
+          "readme": "# 该目录存放${project_type}公用的页面"
+        },
+        "components": {
+          "readme": "# 该目录存放${project_type}公用的组件"
+        }
+      },
+      "modules": {
+        "${product_name}": {
+          "pages": {
+            "my": {
+              "readme": "# 该目录存放${product_name}产品我的账户相关页面"
+            },
+            "product": {
+              "readme": "# 该目录存放${product_name}产品单品页相关页面"
+            }
+          },
+          "models": {
+            "readme": "# 该目录存放${product_name}产品数据请求、参数校验、响应格式化与存储相关类"
+          },
+          "data": {
+            "readme": "# 该目录存放${product_name}产品数据存储相关类"
+          }
+        }
+      }
+    },
+    "build": {
+      "readme": "# 该目录存放${project_type}产品编译代码"
+    }
+  }
+}
