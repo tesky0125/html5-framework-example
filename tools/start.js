@@ -24,6 +24,10 @@ var bundler = webpack(webpackConfig);
 async function start() {
 
   browserSync({
+    port: global.PORT,
+    ui: {
+      port: global.PORT + 1
+    },
     server: {
       baseDir: './build/',
 

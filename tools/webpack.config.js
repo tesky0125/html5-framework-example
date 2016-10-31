@@ -9,9 +9,20 @@
 
 import path from 'path';
 import webpack from 'webpack';
+import yargs from 'yargs';
 
-const DEBUG = !process.argv.includes('--release');
-const VERBOSE = process.argv.includes('--verbose');
+const argv = yargs.usage('Usage: npm start [options]')
+  .example('npm start -- --port=3000 --release --verbose', 'html5-framework-example build')
+  .alias('p', 'port')
+  .default('p', 3000)
+  .alias('r', 'release')
+  .alias('v', 'verbose')
+  .help('h')
+  .argv;
+
+const DEBUG = !argv.release;
+const VERBOSE = argv.verbose;
+global.PORT = argv.port;
 
 const AUTOPREFIXER_BROWSERS = [
   'Android 2.3',
@@ -29,19 +40,18 @@ const GLOBALS = {
 };
 
 const entry = {
-  lib: [
+  module: [
     // 'webpack-dev-server/client?http://localhost:8080',// Automatic Refresh: Inline mode
     'webpack-hot-middleware/client',
     'webpack/hot/dev-server',
     path.resolve(__dirname, '../src/index.js'),
-    path.resolve(__dirname, '../test/index.js')
-  ]
+  ],
 };
 
 const output = {
-  path: path.resolve(__dirname, '../build/public/'),
+  path: path.resolve(__dirname, '../build/'),
   filename: '[name].js',
-  publicPath: '/public/' // Required for webpack-dev-server
+  publicPath: '/', // Required for webpack-dev-server
 };
 
 const module = {
@@ -51,7 +61,7 @@ const module = {
     loaders: ['react-hot', 'babel-loader'],
     exclude: /node_modules/,
     include: [
-      path.resolve(__dirname, '../'),
+      path.resolve(__dirname, '../src/'),
     ],
   }, {
     test: /\.json$/,
@@ -61,14 +71,14 @@ const module = {
     loader: 'raw-loader',
   }, {
     test: /\.(png|jpg|jpeg|gif)$/,
-    loader: 'url-loader?limit=10000&name=[name].[hash].[ext]',
+    loader: 'url-loader?limit=10000&name=public/[name].[hash].[ext]',
   }, {
     test: /\.(eot|ttf|wav|mp3|svg|woff|woff2)$/,
-    loader: 'file-loader?name=[name].[hash].[ext]',
+    loader: 'file-loader?name=public/[name].[hash].[ext]',
   }, {
     test: /\.css$/,
     loader: 'style-loader!css-loader!postcss-loader',
-  }, ]
+  }, ],
 };
 
 const stats = {
@@ -110,27 +120,23 @@ const config = {
   output,
   module,
   resolve: {
-    extensions: ['', '.webpack.js', '.web.js', '.js', '.jsx']
+    extensions: ['', '.webpack.js', '.web.js', '.js', '.jsx'],
   },
   stats,
   // Require the webpack and react-hot-loader plugins
   plugins,
-  devtool: '#cheap-module-eval-source-map',
+  devtool: '#inline-source-map', // 'cheap-module-eval-source-map',
   debug: true,
   // postcss: function plugin(bundler) {
   //   return [
-  //     require('postcss-import')({
+  //     postcssImport({
   //       addDependencyTo: bundler,
   //     }),
-  //     require('postcss-mixins')(),
-  //     require('postcss-nested')(),
-  //     require('postcss-cssnext')({
+  //     precss(),
+  //     postcssMixins(),
+  //     postcssNested(),
+  //     postcssCssnext({
   //       autoprefixer: AUTOPREFIXER_BROWSERS,
-  //     }),
-  //     require('lost')({
-  //       'gutter': '0px',
-  //       'flexbox': 'no-flex',
-  //       'cycle': 'none',
   //     }),
   //   ];
   // },
