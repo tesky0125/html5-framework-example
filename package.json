@@ -61,10 +61,18 @@
     "webpack": "^1.13.0",
     "webpack-dev-middleware": "^1.2.0",
     "webpack-dev-server": "^1.14.1",
-    "webpack-hot-middleware": "^2.4.1"
+    "webpack-hot-middleware": "^2.4.1",
+    "yargs": "^4.6.0"
   },
   "config": {
-    "ghooks": {}
+    "ghooks": {
+      "pre-commit": "",
+      "commit-msg": ""
+    }
+  },
+  "lint-staged": {
+    "@(src|tools)/**/*.js": "eslint",
+    "src/**/*.css": "stylelint"
   },
   "scripts": {
     "eslint": "eslint src tools",

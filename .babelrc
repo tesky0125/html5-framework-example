@@ -1,4 +1,4 @@
 {
-  "presets": ["es2015", "stage-0", "react"],
-  "plugins": ["transform-decorators-legacy","transform-es5-property-mutators"]
+  "presets": ["es2015", "stage-0", "react", "node5"],
+  "plugins": ["transform-decorators-legacy", "transform-es5-property-mutators"]
 }
