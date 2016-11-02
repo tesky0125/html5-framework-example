@@ -97,6 +97,7 @@
     "build": "babel-node tools/run build",
     "release": "babel-node tools/run build --release",
     "start": "babel-node tools/run start",
+    "debug": "babel-node tools/run start --port=3002",
     "makecss": "babel-node tools/run makecss",
     "init_project": "node init_project"
   }

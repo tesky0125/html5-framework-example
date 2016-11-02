@@ -77,12 +77,11 @@ const output = {
   path: path.resolve(__dirname, '../dist/'),
   filename: '[name].js',
   publicPath: '/', // Required for webpack-dev-server
+  sourcePrefix: '',
+  sourceMapFilename: '[name].js.map',
 };
 
-const jsLoader = ['react-hot', 'babel-loader'];
-if (!DEBUG) {
-  jsLoader.push(WebpackStrip.loader('console.log', 'console.warn'));
-}
+const jsLoader = DEBUG ? ['react-hot', 'babel-loader'] : ['babel-loader', WebpackStrip.loader('console.log', 'console.warn')];
 
 const module = {
   // Load the react-hot-loader
@@ -167,7 +166,7 @@ const config = {
   // Require the webpack and react-hot-loader plugins
   plugins,
   externals,
-  devtool: '#inline-source-map', // 'cheap-module-eval-source-map',
+  devtool: DEBUG ? 'source-map' : '', // 'inline-source-map' // 'cheap-module-eval-source-map',
   debug: DEBUG,
   cache: CACHE,
   // postcss: function plugin(bundler) {
