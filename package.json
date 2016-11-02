@@ -1,5 +1,5 @@
 {
-  "name": "html5-framework-example",
+  "name": "html5_framework_example",
   "version": "1.0.0",
   "description": "html5-framework-example for web app",
   "main": "build/index.js",
@@ -48,6 +48,7 @@
     "eslint-plugin-import": "^1.8.1",
     "eslint-plugin-jsx-a11y": "^1.2.2",
     "eslint-plugin-react": "^5.1.1",
+    "extract-text-webpack-plugin": "^1.0.1",
     "file-exists": "^2.0.0",
     "file-loader": "^0.8.4",
     "file-system": "^2.2.1",
@@ -63,6 +64,7 @@
     "react-transform-hmr": "^1.0.1",
     "recursive-readdir-sync": "^1.0.6",
     "source-map-support": "0.3.2",
+    "strip-loader": "^0.1.2",
     "style-loader": "^0.13.1",
     "stylefmt": "^3.3.0",
     "stylelint": "^6.0.3",
@@ -93,10 +95,9 @@
     "copy": "babel-node tools/run copy",
     "bundle": "babel-node tools/run bundle",
     "build": "babel-node tools/run build",
+    "release": "babel-node tools/run build --release",
     "start": "babel-node tools/run start",
     "makecss": "babel-node tools/run makecss",
-    "release": "babel-node tools/run build && babel ./src --out-dir ./build",
-    "compile": "babel-node tools/run compile",
     "init_project": "node init_project"
   }
 }

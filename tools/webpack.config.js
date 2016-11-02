@@ -10,19 +10,39 @@
 import path from 'path';
 import webpack from 'webpack';
 import yargs from 'yargs';
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import WebpackStrip from 'strip-loader';
+
+const pkg = require(path.join(process.cwd(), 'package.json'));
 
 const argv = yargs.usage('Usage: npm start [options]')
-  .example('npm start -- --port=3000 --release --verbose', 'html5-framework-example build')
+  .example('npm start -- --port=3000 --release --cache --watch --verbose', 'html5-framework-example build')
   .alias('p', 'port')
   .default('p', 3000)
   .alias('r', 'release')
+  .default('r', false)
+  .alias('c', 'cache')
+  .default('c', false)
+  .alias('w', 'watch')
+  .default('w', false)
   .alias('v', 'verbose')
+  .default('v', false)
   .help('h')
   .argv;
 
+
+const PORT = argv.port;
 const DEBUG = !argv.release;
+const CACHE = argv.cache;
+const WATCH = argv.watch;
 const VERBOSE = argv.verbose;
-global.PORT = argv.port;
+global.PORT = PORT;
+global.DEBUG = DEBUG;
+global.CACHE = CACHE;
+global.WATCH = WATCH;
+global.VERBOSE = VERBOSE;
+
+console.log('DEBUG:', DEBUG, ',CACHE:', CACHE, ',WATCH:', WATCH, ',VERBOSE:', VERBOSE, ',PORT:', PORT);
 
 const AUTOPREFIXER_BROWSERS = [
   'Android 2.3',
@@ -41,28 +61,34 @@ const GLOBALS = {
 
 const entry = {
   module: [
-    // 'webpack-dev-server/client?http://localhost:8080',// Automatic Refresh: Inline mode
-    'webpack-hot-middleware/client',
-    'webpack/hot/dev-server',
     path.resolve(__dirname, '../src/index.js'),
   ],
 };
+
+if (!DEBUG) {
+  entry['module'].push(
+    // 'webpack-dev-server/client?http://localhost:8080',// Automatic Refresh: Inline mode
+    'webpack-hot-middleware/client',
+    'webpack/hot/dev-server',
+  );
+}
 
 const output = {
   path: path.resolve(__dirname, '../dist/'),
   filename: '[name].js',
   publicPath: '/', // Required for webpack-dev-server
-  sourcePrefix: '',
-  library: '[name]',
-  libraryTarget: 'umd',
-  sourceMapFilename: '[name].js.map',
 };
+
+const jsLoader = ['react-hot', 'babel-loader'];
+if (!DEBUG) {
+  jsLoader.push(WebpackStrip.loader('console.log', 'console.warn'));
+}
 
 const module = {
   // Load the react-hot-loader
   loaders: [{
     test: /\.jsx?$/,
-    loaders: ['react-hot', 'babel-loader'],
+    loaders: jsLoader,
     exclude: /node_modules/,
     include: [
       path.resolve(__dirname, '../src/'),
@@ -81,7 +107,7 @@ const module = {
     loader: 'file-loader?name=public/[name].[hash].[ext]',
   }, {
     test: /\.css$/,
-    loader: 'style-loader!css-loader!postcss-loader',
+    loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader'),
   }, ],
 };
 
@@ -93,15 +119,14 @@ const stats = {
   timings: VERBOSE,
   chunks: VERBOSE,
   chunkModules: VERBOSE,
-  cached: VERBOSE,
-  cachedAssets: VERBOSE,
+  cached: CACHE,
+  cachedAssets: CACHE,
 };
 
 const plugins = [
-  // new webpack.optimize.CommonsChunkPlugin({
-  //   names: ['libs/vendors'],
-  //   filename: 'libs/vendors.js'
-  // }),
+  new webpack.optimize.CommonsChunkPlugin(
+    'common.js'
+  ),
   new webpack.optimize.OccurenceOrderPlugin(),
   new webpack.DefinePlugin(GLOBALS),
   ...(DEBUG ? [] : [
@@ -117,6 +142,10 @@ const plugins = [
     new webpack.HotModuleReplacementPlugin(),
   ] : []),
   new webpack.NoErrorsPlugin(),
+  new webpack.BannerPlugin(
+    pkg.name + ' v' + pkg.version +
+    '\n\n@date ' + new Date().toString()
+  )
 ];
 
 const externals = [{
@@ -124,7 +153,7 @@ const externals = [{
 }, {
   'react-dom': 'ReactDOM',
 }, {
-  'html5-framework': 'html5-framework',
+  'html5_framework': 'html5_framework',
 }];
 
 const config = {
@@ -139,7 +168,8 @@ const config = {
   plugins,
   externals,
   devtool: '#inline-source-map', // 'cheap-module-eval-source-map',
-  debug: true,
+  debug: DEBUG,
+  cache: CACHE,
   // postcss: function plugin(bundler) {
   //   return [
   //     postcssImport({

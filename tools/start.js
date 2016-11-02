@@ -15,13 +15,14 @@ import webpackConfig from './webpack.config';
 import run from './run';
 import copy from './copy';
 
-const DEBUG = !process.argv.includes('--release');
+const DEBUG = global.DEBUG;
+const VERBOSE = global.VERBOSE;
 
 /**
  * Launches a development web server with "live reload" functionality -
  * synchronizing URLs, interactions and code changes across multiple devices.
  */
-var bundler = webpack(webpackConfig);
+const bundler = webpack(webpackConfig);
 
 async function start() {
   await run(copy);
@@ -39,10 +40,10 @@ async function start() {
         webpackDevMiddleware(bundler, {
           publicPath: webpackConfig.output.publicPath,
           stats: {
-            colors: true,
-            chunks: false,
-            children: false,
-            warnings: false,
+            colors: VERBOSE,
+            chunks: VERBOSE,
+            children: VERBOSE,
+            warnings: VERBOSE,
           },
         }),
 
