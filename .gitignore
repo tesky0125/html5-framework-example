@@ -4,7 +4,7 @@
 .idea/
 node_modules/
 build/
-lib/
+dist/**/*.js
 
 ###############
 #    file   #

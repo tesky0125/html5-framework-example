@@ -3,11 +3,11 @@
 class MyClass1 {}
 
 function annotation(target) {
-  console.log('Class', target);
+  // console.log('Class', target);
   target.annotated = true;
 }
 
-console.log('annotated:', MyClass1.annotated);
+console.log('example 1, annotated:', MyClass1.annotated);
 
 // example 2
 @isTestable(true)
@@ -19,17 +19,17 @@ function isTestable(value) {
   }
 }
 
-console.log('isTestable:', MyClass2.isTestable);
+console.log('example 2, isTestable:', MyClass2.isTestable);
 
 // example 3
 class MyClass3 {
   @enumerable(false)
   method() {
-    console.warn('hello world!');
+    console.warn('example 3, hello world!');
   }
   @enumerable(true)
   method2() {
-    console.warn('hello world!');
+    console.warn('example 3, hello world!');
   }
 }
 
@@ -44,12 +44,15 @@ function enumerable(value) {
 
 const instance3 = new MyClass3();
 for (let key in instance3) {
-  console.log('for-in-enumerable: ', key);
+  console.log('example 3, for-in-enumerable: ', key);
 }
 
 // example 4
 import _ from 'lodash';
-import debounce from '../src/decorators/debounce';
+// import debounce from '../src/decorators/debounce';
+import {
+  debounce
+} from 'core-decorators';
 
 class MyClass4 {
   constructor() {
@@ -59,7 +62,7 @@ class MyClass4 {
 
   @debounce(3000)
   method() {
-    console.warn('hello world, timeout 3 seconds!!');
+    console.warn('example 4, hello world, timeout 3 seconds!!');
   }
 
   print() {

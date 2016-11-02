@@ -1,18 +1,15 @@
 import React from 'react';
 import ReactDom from 'react-dom';
 
-import DemoWithPrivateDecorator from './DemoWithPrivateDecorator';
-import './DemoWithDecorator';
+import PrivateDecoratorClass from './PrivateDecoratorClass';
+import './DecoratorDemo';
 
 import assert from 'assert';
 import _ from 'lodash';
 
-import autobind from '../src/decorators/autobind';
-import debounce from '../src/decorators/debounce';
-
 import {
   autobind,
-  debounce
+  debounce,
 } from 'core-decorators';
 
 export default class DecoratorComponent extends React.Component {
@@ -24,9 +21,9 @@ export default class DecoratorComponent extends React.Component {
 
     this.state = {};
   }
+
   componentWillMount() {
-    this.testDemoWithPrivateDecorator();
-    this.testDemoWithDecorator();
+    this.testPrivateDecoratorClass();
   }
 
   // @autobind
@@ -37,29 +34,20 @@ export default class DecoratorComponent extends React.Component {
     console.log('hello decorator success, timeout 2 seconds!@@!');
   }
 
-  testDemoWithPrivateDecorator() {
-    const instance = new DemoWithPrivateDecorator();
-    assert.equal(instance.public1('hello'), 'public1:hello');
+  testPrivateDecoratorClass() {
+    const instance = new PrivateDecoratorClass();
+    assert.equal(instance.public1('hello'), 'example public1:hello');
     assert(!('private2' in instance));
 
     console.log(instance.public1('hello'));
   }
 
-  testDemoWithDecorator() {
-
-  }
 
   render() {
-    console.log('Hello World!');
+    console.log('Hello World DecoratorComponent!');
     return (
       <div>
-        <div  onClick = {this.onClickTestDecorator}>Hello World!!React Hot Loader Success!!! </div>
+        <div  onClick = {this.onClickTestDecorator}>Hello World DecoratorComponent! </div>
       </div>);
   }
 }
-
-
-// ReactDom.render(
-//   <DecoratorComponent/>,
-//   document.getElementById('app')
-// );

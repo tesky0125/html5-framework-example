@@ -12,6 +12,8 @@ import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackConfig from './webpack.config';
+import run from './run';
+import copy from './copy';
 
 const DEBUG = !process.argv.includes('--release');
 
@@ -22,21 +24,25 @@ const DEBUG = !process.argv.includes('--release');
 var bundler = webpack(webpackConfig);
 
 async function start() {
+  await run(copy);
 
   browserSync({
     port: global.PORT,
     ui: {
-      port: global.PORT + 1
+      port: global.PORT + 1,
     },
     server: {
-      baseDir: './build/',
+      baseDir: './dist/',
 
       // http://webpack.github.io/docs/webpack-dev-middleware.html
       middleware: [
         webpackDevMiddleware(bundler, {
           publicPath: webpackConfig.output.publicPath,
           stats: {
-            colors: true
+            colors: true,
+            chunks: false,
+            children: false,
+            warnings: false,
           },
         }),
 
@@ -47,8 +53,8 @@ async function start() {
     // no need to watch '*.js' here, webpack will take care of it for us,
     // including full page reloads if HMR won't work
     files: [
-      'build/**/*.css',
-      'build/**/*.html'
+      'dist/**/*.css',
+      'dist/**/*.html'
     ],
   });
 }

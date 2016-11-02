@@ -49,9 +49,13 @@ const entry = {
 };
 
 const output = {
-  path: path.resolve(__dirname, '../build/'),
+  path: path.resolve(__dirname, '../dist/'),
   filename: '[name].js',
   publicPath: '/', // Required for webpack-dev-server
+  sourcePrefix: '',
+  library: '[name]',
+  libraryTarget: 'umd',
+  sourceMapFilename: '[name].js.map',
 };
 
 const module = {
@@ -115,6 +119,14 @@ const plugins = [
   new webpack.NoErrorsPlugin(),
 ];
 
+const externals = [{
+  react: 'React',
+}, {
+  'react-dom': 'ReactDOM',
+}, {
+  'html5-framework': 'html5-framework',
+}];
+
 const config = {
   entry,
   output,
@@ -122,9 +134,10 @@ const config = {
   resolve: {
     extensions: ['', '.webpack.js', '.web.js', '.js', '.jsx'],
   },
-  stats,
+  // stats,
   // Require the webpack and react-hot-loader plugins
   plugins,
+  externals,
   devtool: '#inline-source-map', // 'cheap-module-eval-source-map',
   debug: true,
   // postcss: function plugin(bundler) {

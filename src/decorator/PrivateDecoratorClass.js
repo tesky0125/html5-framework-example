@@ -7,12 +7,12 @@ import {
 @classWithPrivateMethods
 class FooWithPrivate {
   public1(text) {
-    return `public1:${text}`
+    return `example public1:${text}`
   }
 
   @privateMethod
   private2(text) {
-    return `private2:${text}`
+    return `example private2:${text}`
   }
 }
 

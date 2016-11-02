@@ -7,17 +7,20 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import del from 'del';
+import path from 'path';
+import Promise from 'bluebird';
 import fs from './lib/fs';
 
 /**
- * Cleans up the output (dist) directory.
+ * Copies static files such as robots.txt, favicon.ico to the
+ * output (build) folder.
  */
-async function clean() {
-  await del(['.tmp', 'build/*', 'dist/*', '!dist/.git', '!dist/index.html'], {
-    dot: true
-  });
-  await fs.makeDir('build');
+async function copy() {
+  const ncp = Promise.promisify(require('ncp'));
+
+  await Promise.all([
+    ncp('libs', 'dist/libs'),
+  ]);
 }
 
-export default clean;
+export default copy;
