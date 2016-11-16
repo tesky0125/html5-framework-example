@@ -11,9 +11,10 @@ import browserSync from 'browser-sync';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
-import webpackConfig from './webpack.config';
+import webpackConfig from './webpack.config.demo';
 import run from './run';
 import copy from './copy';
+import clean from './clean';
 
 const DEBUG = global.DEBUG;
 const VERBOSE = global.VERBOSE;
@@ -25,6 +26,7 @@ const VERBOSE = global.VERBOSE;
 const bundler = webpack(webpackConfig);
 
 async function start() {
+  await run(clean);
   await run(copy);
 
   browserSync({

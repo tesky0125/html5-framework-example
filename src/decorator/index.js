@@ -16,7 +16,7 @@ export default class DecoratorComponent extends React.Component {
   constructor() {
     super();
 
-    // this['onClickTestDecorator'] = this['onClickTestDecorator'].bind(this);
+    this['onClickTestDecorator'] = this['onClickTestDecorator'].bind(this);
     // this['onClickTestDecorator'] = _.debounce(this['onClickTestDecorator'], 5000);
 
     this.state = {};
@@ -28,7 +28,7 @@ export default class DecoratorComponent extends React.Component {
 
   // @autobind
   // @debounce(2000)
-  @autobind
+  // @autobind
   @debounce(2000)
   onClickTestDecorator() {
     console.log('hello decorator success, timeout 2 seconds!@@!');

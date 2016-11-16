@@ -14,10 +14,11 @@ import fs from './lib/fs';
  * Cleans up the output (dist) directory.
  */
 async function clean() {
-  await del(['.tmp', 'build/*', 'dist/*', '!dist/.git', '!dist/index.html'], {
-    dot: true
+  const debug = global.DEBUG;
+  const delArr = debug ? ['dist/libs'] : ['.tmp', 'build/*', 'dist/*', '!dist/.git'];
+  await del(delArr, {
+    dot: true,
   });
-  await fs.makeDir('build');
 }
 
 export default clean;

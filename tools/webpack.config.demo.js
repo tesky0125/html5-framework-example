@@ -12,46 +12,36 @@ import webpack from 'webpack';
 import yargs from 'yargs';
 
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
-import WebpackStrip from 'strip-loader';
 
-const pkg = require(path.join(process.cwd(), 'package.json'));
-
-const argv = yargs.usage('Usage: npm run build [options]')
-  .example('npm run build --release --cache --watch --verbose', 'lubase build')
-  .alias('r', 'release')
-  .default('r', false)
+const argv = yargs.usage('Usage: npm start [options]')
+  .example('npm start -- --port=3000 --cache --verbose', 'html5-framework example build')
+  .alias('p', 'port')
+  .default('p', 3000)
   .alias('c', 'cache')
   .default('c', false)
-  .alias('w', 'watch')
-  .default('w', false)
   .alias('v', 'verbose')
   .default('v', false)
   .help('h')
   .argv;
 
-const DEBUG = !argv.release;
+const PORT = argv.port;
 const CACHE = argv.cache;
-const WATCH = argv.watch;
 const VERBOSE = argv.verbose;
-global.DEBUG = DEBUG;
+global.DEBUG = true;
+global.PORT = PORT;
 global.CACHE = CACHE;
-global.WATCH = WATCH;
 global.VERBOSE = VERBOSE;
 
-console.log('DEBUG:', DEBUG, ',CACHE:', CACHE, ',WATCH:', WATCH, ',VERBOSE:', VERBOSE);
+console.log('CACHE:', CACHE, ',VERBOSE:', VERBOSE);
 
 const entry = {
-  'libs/module': [path.resolve(__dirname, '../src/index.js')],
+  'libs/demo': ['webpack/hot/dev-server', 'webpack-hot-middleware/client', path.resolve(__dirname, '../src') + path.sep + 'index.js'],
 };
 
-if (DEBUG) {
-  entry['libs/module'].unshift('webpack-hot-middleware/client', 'webpack/hot/dev-server');
-}
-
 const output = {
-  path: path.join(__dirname, '../dist/'),
+  path: path.join(__dirname, '../dist'),
   filename: '[name].js',
-  publicPath: DEBUG ? '/' : 'https://static.cdn.com/module/',
+  publicPath: '/',
   sourcePrefix: '',
   sourceMapFilename: '[name].js.map',
 };
@@ -68,41 +58,30 @@ const AUTOPREFIXER_BROWSERS = [
 ];
 
 const GLOBALS = {
-  'process.env.NODE_ENV': DEBUG ? '"development"' : '"production"',
-  __DEV__: DEBUG,
+  'process.env.NODE_ENV': '"development"',
+  __DEV__: true,
 };
 
 const plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
   new webpack.DefinePlugin(GLOBALS),
-  ...(DEBUG ? [] : [
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: VERBOSE,
-      },
-    }),
-    new webpack.optimize.AggressiveMergingPlugin(),
-  ]),
-  ...(DEBUG ? [
-    new webpack.HotModuleReplacementPlugin(),
-  ] : []),
-  new webpack.NoErrorsPlugin(),
-  new ExtractTextPlugin('styles/lubase.css'),
-  new webpack.BannerPlugin(
-    pkg.name + ' v' + pkg.version +
-    '\n\n@date ' + new Date().toString()
-  ),
+  new webpack.HotModuleReplacementPlugin(),
+  new ExtractTextPlugin('styles/demo.css'),
 ];
 
 const moduleConfig = {
   loaders: [{
     test: /\.jsx?$/,
-    loaders: DEBUG ? ['react-hot', 'babel-loader'] : ['babel-loader', WebpackStrip.loader('console.log', 'console.warn')],
-    exclude: /node_modules/,
+    include: [
+      path.resolve(__dirname, '../src'),
+    ],
+    loaders: ['react-hot', 'babel-loader'],
   }, {
     test: /\.(png|jpg|jpeg|gif)$/,
-    loader: 'url-loader?limit=10&name=images/[name].lubase.[ext]',
+    loader: 'url-loader?limit=10&name=images/[name].[hash].[ext]',
+  }, {
+    test: /\.(eot|ttf|wav|mp3|svg|woff|woff2)$/,
+    loader: 'file-loader?name=fonts/[name].[hash].[ext]',
   }, {
     test: /\.css$/,
     loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader'),
@@ -111,7 +90,7 @@ const moduleConfig = {
 
 const stats = {
   colors: VERBOSE,
-  reasons: DEBUG,
+  reasons: VERBOSE,
   hash: VERBOSE,
   version: VERBOSE,
   timings: VERBOSE,
@@ -142,10 +121,10 @@ const config = {
   module: moduleConfig,
   plugins,
   externals,
-  devtool: DEBUG ? 'cheap-module-eval-source-map' : '',
-  debug: DEBUG,
-  cache: CACHE,
+  devtool: 'cheap-module-eval-source-map',
   resolve,
+  debug: true,
+  cache: CACHE,
   postcss: function plugin(bundler) {
     return [
       require('postcss-import')({

@@ -19,7 +19,10 @@ async function copy() {
   const ncp = Promise.promisify(require('ncp'));
 
   await Promise.all([
-    ncp('libs', 'dist/libs'),
+    ncp(path.resolve(__dirname, '../libs'), path.resolve(__dirname, '../dist/libs')),
+    ncp(path.resolve(__dirname, '../../html5-framework/dist/libs/core.js'), path.resolve(__dirname, '../dist/libs/core.js')),
+    ncp(path.resolve(__dirname, '../../html5-framework/dist/libs/components.js'), path.resolve(__dirname, '../dist/libs/components.js')),
+    ncp('src/index.html', 'dist/index.html'),
   ]);
 }
 
