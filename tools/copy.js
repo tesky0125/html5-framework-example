@@ -18,10 +18,13 @@ import fs from './lib/fs';
 async function copy() {
   const ncp = Promise.promisify(require('ncp'));
 
+  await fs.makeDir(path.resolve(__dirname, '../dist/libs'));
+  await fs.makeDir(path.resolve(__dirname, '../dist/styles'));
+
   await Promise.all([
     ncp(path.resolve(__dirname, '../libs'), path.resolve(__dirname, '../dist/libs')),
-    ncp(path.resolve(__dirname, '../../html5-framework/dist/libs/core.js'), path.resolve(__dirname, '../dist/libs/core.js')),
-    ncp(path.resolve(__dirname, '../../html5-framework/dist/libs/components.js'), path.resolve(__dirname, '../dist/libs/components.js')),
+    ncp(path.resolve(__dirname, '../../html5-framework/dist/libs/html5_framework.js'), path.resolve(__dirname, '../dist/libs/html5_framework.js')),
+    ncp(path.resolve(__dirname, '../../html5-framework/dist/styles/html5_framework.css'), path.resolve(__dirname, '../dist/styles/html5_framework.css')),
     ncp('src/index.html', 'dist/index.html'),
   ]);
 }

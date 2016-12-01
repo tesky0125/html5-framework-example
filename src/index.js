@@ -1,17 +1,15 @@
 import React from 'react';
 import ReactDom from 'react-dom';
 
-import Core from 'core';
-console.log('html5_framework core', Core);
-
-import Components from 'components';
-console.log('html5_framework components', Components);
+import H5Framework from 'html5_framework';
+console.log('html5_framework', H5Framework);
 
 const {
-  BaseAction,
-} = Components;
-console.log('BaseAction:', BaseAction);
-const action = new Components.BaseAction();
+  Core,
+} = H5Framework;
+console.log('BaseAction:', Core.BaseAction);
+
+const action = new Core.BaseAction();
 
 // import HelloWorldComponent from './demo/index';
 import DecoratorComponent from './decorator/index';

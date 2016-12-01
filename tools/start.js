@@ -13,8 +13,6 @@ import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackConfig from './webpack.config.demo';
 import run from './run';
-import copy from './copy';
-import clean from './clean';
 
 const DEBUG = global.DEBUG;
 const VERBOSE = global.VERBOSE;
@@ -26,8 +24,8 @@ const VERBOSE = global.VERBOSE;
 const bundler = webpack(webpackConfig);
 
 async function start() {
-  await run(clean);
-  await run(copy);
+  await run(require('./clean'));
+  await run(require('./copy'));
 
   browserSync({
     port: global.PORT,
@@ -57,7 +55,27 @@ async function start() {
     // including full page reloads if HMR won't work
     files: [
       'dist/**/*.css',
-      'dist/**/*.html'
+      'dist/**/*.html', {
+        match: '../../*/dist/libs/*.js',
+        fn: (e, p) => {
+          console.log(p);
+          if (e !== 'unlink' || e === 'change' || e === 'add') {
+            run(require('./clean')).then(() => {
+              run(require('./copy'));
+            });
+          }
+        },
+      }, {
+        match: '../../*/dist/styles/*.css',
+        fn: (e, p) => {
+          console.log(p);
+          if (e !== 'unlink' || e === 'change' || e === 'add') {
+            run(require('./clean')).then(() => {
+              run(require('./copy'));
+            });
+          }
+        },
+      },
     ],
   });
 }

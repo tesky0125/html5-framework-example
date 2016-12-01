@@ -12,12 +12,11 @@ import webpack from 'webpack';
 import yargs from 'yargs';
 
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
-import WebpackStrip from 'strip-loader';
 
 const pkg = require(path.join(process.cwd(), 'package.json'));
 
 const argv = yargs.usage('Usage: npm run build [options]')
-  .example('npm run build --release --cache --watch --verbose', 'lubase build')
+  .example('npm run build --release --cache --watch --verbose', 'html5-framework-example build')
   .alias('r', 'release')
   .default('r', false)
   .alias('c', 'cache')
@@ -29,123 +28,88 @@ const argv = yargs.usage('Usage: npm run build [options]')
   .help('h')
   .argv;
 
-const DEBUG = !argv.release;
-const CACHE = argv.cache;
-const WATCH = argv.watch;
-const VERBOSE = argv.verbose;
-global.DEBUG = DEBUG;
-global.CACHE = CACHE;
-global.WATCH = WATCH;
-global.VERBOSE = VERBOSE;
+const DEBUG = global.DEBUG = !argv.release;
+const CACHE = global.CACHE = argv.cache;
+const WATCH = global.WATCH = argv.watch;
+const VERBOSE = global.VERBOSE = argv.verbose;
 
 console.log('DEBUG:', DEBUG, ',CACHE:', CACHE, ',WATCH:', WATCH, ',VERBOSE:', VERBOSE);
 
-const entry = {
-  'libs/module': [path.resolve(__dirname, '../src/index.js')],
-};
+const extractTextPlugin = new ExtractTextPlugin('styles/module.css');
 
-if (DEBUG) {
-  entry['libs/module'].unshift('webpack-hot-middleware/client', 'webpack/hot/dev-server');
-}
-
-const output = {
-  path: path.join(__dirname, '../dist/'),
-  filename: '[name].js',
-  publicPath: DEBUG ? '/' : 'https://static.cdn.com/module/',
-  sourcePrefix: '',
-  sourceMapFilename: '[name].js.map',
-};
-
-const AUTOPREFIXER_BROWSERS = [
-  'Android 2.3',
-  'Android >= 4',
-  'Chrome >= 35',
-  'Firefox >= 31',
-  'Explorer >= 9',
-  'iOS >= 6',
-  'Opera >= 12',
-  'Safari >= 7.1',
-];
-
-const GLOBALS = {
-  'process.env.NODE_ENV': DEBUG ? '"development"' : '"production"',
-  __DEV__: DEBUG,
-};
-
-const plugins = [
-  new webpack.optimize.OccurenceOrderPlugin(),
-  new webpack.DefinePlugin(GLOBALS),
-  ...(DEBUG ? [] : [
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: VERBOSE,
-      },
+export default {
+  entry: {
+    'libs/module': DEBUG ? [path.resolve(__dirname, '../src/index.js'), 'webpack-hot-middleware/client', 'webpack/hot/dev-server'] : [path.resolve(__dirname, '../src/index.js')],
+  },
+  output: {
+    path: path.join(__dirname, '../dist/'),
+    filename: '[name].js',
+    publicPath: DEBUG ? '/' : 'https://static.cdn.com/module/',
+    sourcePrefix: '',
+    sourceMapFilename: '[name].js.map',
+  },
+  module: {
+    loaders: [{
+      test: /\.jsx?$/,
+      loaders: DEBUG ? ['react-hot', 'babel-loader'] : ['babel-loader', 'strip-loader?strip[]=console.log,strip[]=console.info'],
+      exclude: /node_modules/,
+    }, {
+      test: /\.(png|jpg|jpeg|gif)$/,
+      loader: 'url-loader?limit=10&name=images/[name].lubase.[ext]',
+    }, {
+      test: /\.css$/,
+      loader: extractTextPlugin.extract('style-loader', 'css-loader!postcss-loader'),
+    }],
+  },
+  plugins: [
+    new webpack.optimize.OccurenceOrderPlugin(),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': DEBUG ? '"development"' : '"production"',
+      __DEV__: DEBUG,
     }),
-    new webpack.optimize.AggressiveMergingPlugin(),
-  ]),
-  ...(DEBUG ? [
-    new webpack.HotModuleReplacementPlugin(),
-  ] : []),
-  new webpack.NoErrorsPlugin(),
-  new ExtractTextPlugin('styles/lubase.css'),
-  new webpack.BannerPlugin(
-    pkg.name + ' v' + pkg.version +
-    '\n\n@date ' + new Date().toString()
-  ),
-];
-
-const moduleConfig = {
-  loaders: [{
-    test: /\.jsx?$/,
-    loaders: DEBUG ? ['react-hot', 'babel-loader'] : ['babel-loader', WebpackStrip.loader('console.log', 'console.warn')],
-    exclude: /node_modules/,
+    ...(DEBUG ? [] : [
+      new webpack.optimize.DedupePlugin(),
+      new webpack.optimize.UglifyJsPlugin({
+        compress: {
+          warnings: VERBOSE,
+        },
+      }),
+      new webpack.optimize.AggressiveMergingPlugin(),
+    ]),
+    ...(DEBUG ? [
+      new webpack.HotModuleReplacementPlugin(),
+    ] : []),
+    new webpack.NoErrorsPlugin(),
+    extractTextPlugin,
+    new webpack.BannerPlugin(
+      pkg.name + ' v' + pkg.version +
+      '\n\n@date ' + new Date().toString()
+    ),
+  ],
+  externals: [{
+    react: 'React',
   }, {
-    test: /\.(png|jpg|jpeg|gif)$/,
-    loader: 'url-loader?limit=10&name=images/[name].lubase.[ext]',
+    'react-dom': 'ReactDOM',
   }, {
-    test: /\.css$/,
-    loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader'),
+    'html5_framework': 'html5_framework',
   }],
-};
-
-const stats = {
-  colors: VERBOSE,
-  reasons: DEBUG,
-  hash: VERBOSE,
-  version: VERBOSE,
-  timings: VERBOSE,
-  chunks: VERBOSE,
-  chunkModules: VERBOSE,
-  cached: CACHE,
-  cachedAssets: CACHE,
-};
-
-const resolve = {
-  extensions: ['', '.webpack.js', '.web.js', '.js', '.jsx'],
-};
-
-const externals = [{
-  react: 'React',
-}, {
-  'react-dom': 'ReactDOM',
-}, {
-  'core': 'libs/core',
-}, {
-  'components': 'libs/components',
-}];
-
-const config = {
-  entry,
-  output,
-  stats,
-  module: moduleConfig,
-  plugins,
-  externals,
   devtool: DEBUG ? 'cheap-module-eval-source-map' : '',
   debug: DEBUG,
   cache: CACHE,
-  resolve,
+  resolve: {
+    extensions: ['', '.webpack.js', '.web.js', '.js', '.jsx'],
+  },
+  stats: {
+    colors: VERBOSE,
+    reasons: DEBUG,
+    hash: VERBOSE,
+    version: VERBOSE,
+    timings: VERBOSE,
+    chunks: VERBOSE,
+    chunkModules: VERBOSE,
+    cached: CACHE,
+    cachedAssets: CACHE,
+  },
   postcss: function plugin(bundler) {
     return [
       require('postcss-import')({
@@ -155,10 +119,17 @@ const config = {
       require('postcss-mixins')(),
       require('postcss-nested')(),
       require('postcss-cssnext')({
-        autoprefixer: AUTOPREFIXER_BROWSERS,
+        autoprefixer: [
+          'Android 2.3',
+          'Android >= 4',
+          'Chrome >= 35',
+          'Firefox >= 31',
+          'Explorer >= 9',
+          'iOS >= 6',
+          'Opera >= 12',
+          'Safari >= 7.1',
+        ],
       }),
     ];
   },
 };
-
-export default config;
